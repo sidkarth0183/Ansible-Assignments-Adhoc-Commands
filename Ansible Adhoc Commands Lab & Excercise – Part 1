@@ -1,1 +1,187 @@
+Program 1 – Write a Ansible Adhoc Commands to create a group called “deploy
+=========
+
+Note : acs-server is the host entry in the /etc/hosts of the ACS server
+
+Solution :
+
+**********************************************************************************************************************************
+
+
+[root@ip-172-31-43-45 ~]# more /etc/group | grep deploy
+[root@ip-172-31-43-45 ~]# ansible all -i acs-server, -m group -a"name=deploy state=present" -u ec2-user --key-file=acs-key.pem -b
+acs-server | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/libexec/platform-python"
+    },
+    "changed": true,
+    "gid": 1001,
+    "name": "deploy",
+    "state": "present",
+    "system": false
+}
+[root@ip-172-31-43-45 ~]# more /etc/group | grep deploy
+deploy:x:1001:
+
+#################################################################################################################################
+
+Program 2 – Write a Ansible Adhoc Commands to create a user called “deploy-user” which is part of group called “deploy” 
+            and with /bin/bash shell.
+            
+Solution :
+
+**********************************************************************************************************************************
+
+[root@ip-172-31-43-45 ~]# more /etc/passwd | grep deploy-user
+[root@ip-172-31-43-45 ~]# ansible all -i acs-server, -m user -a'name=deploy-user state=present comment="user deploy-user part of group deploy" group=deploy shell="/bin/bash"' -u ec2-user --key-file=acs-key.pem -b
+acs-server | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/libexec/platform-python"
+    },
+    "changed": true,
+    "comment": "user deploy-user part of group deploy",
+    "create_home": true,
+    "group": 1001,
+    "home": "/home/deploy-user",
+    "name": "deploy-user",
+    "shell": "/bin/bash",
+    "state": "present",
+    "system": false,
+    "uid": 1001
+}
+[root@ip-172-31-43-45 ~]# more /etc/passwd | grep deploy-user
+deploy-user:x:1001:1001:user deploy-user part of group deploy:/home/deploy-user:/bin/bash
+
+##################################################################################################################################
+
+Program 3 – Write a Ansible Adhoc commands install package named “httpd” in RHEL/centos.
+
+Solution :
+**********************************************************************************************************************************
+ansible all -i acs-server, -m yum -a"name=httpd state=present" -u ec2-user --key-file=acs-key.pem -b
+
+output :
+****************************************************************************
+acs-server | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/libexec/platform-python"
+    },
+    "changed": true,
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Installed: httpd",
+        "Installed: httpd-tools-2.4.37-12.module+el8.0.0+4096+eb40e6da.x86_64",
+        "Installed: redhat-logos-httpd-80.7-1.el8.noarch",
+        "Installed: apr-util-openssl-1.6.1-6.el8.x86_64",
+        "Installed: httpd-2.4.37-12.module+el8.0.0+4096+eb40e6da.x86_64",
+        "Installed: apr-util-1.6.1-6.el8.x86_64",
+        "Installed: apr-util-bdb-1.6.1-6.el8.x86_64",
+        "Installed: httpd-filesystem-2.4.37-12.module+el8.0.0+4096+eb40e6da.noarch",
+        "Installed: mod_http2-1.11.3-3.module+el8.0.0+4096+eb40e6da.x86_64",
+        "Installed: mailcap-2.1.48-3.el8.noarch",
+        "Installed: apr-1.6.3-9.el8.x86_64"
+    ]
+}
+
+[root@ip-172-31-43-45 ~]# rpm -qa | grep -i 'httpd'
+redhat-logos-httpd-80.7-1.el8.noarch
+httpd-filesystem-2.4.37-12.module+el8.0.0+4096+eb40e6da.noarch
+httpd-2.4.37-12.module+el8.0.0+4096+eb40e6da.x86_64
+httpd-tools-2.4.37-12.module+el8.0.0+4096+eb40e6da.x86_64
+[root@ip-172-31-43-45 ~]# which httpd
+/usr/sbin/httpd
+
+##############################################################################################################################
+
+Program 4 – Write a Ansible Adhoc commands to start and enable the service named “httpd”
+
+Solution :
+************************************************************************************************************
+
+ansible all -i acs-server, -m systemd -a"name=httpd state=started" -u ec2-user --key-file=acs-key.pem -b
+
+[root@ip-172-31-43-45 ~]# ps -eaf | grep httpd | grep 'apache'
+apache    2440  2439  0 13:01 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache    2441  2439  0 13:01 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache    2442  2439  0 13:01 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+apache    2443  2439  0 13:01 ?        00:00:00 /usr/sbin/httpd -DFOREGROUND
+
+############################################################################################################################
+
+Program 5 – Write a Ansible commands to create a file called “index.html” in /var/www/html with some dummy html contents.
+
+Solution:
+*********
+ansible all -i acs-server, -m lineinfile -a'path="/var/www/html/index.html" create=yes state=present line="<h1> Welcome all first time to DevOpsSchol.com</h1>"' -u ec2-user --key-file=acs-key.pem -b
+
+[root@ip-172-31-43-45 ~]# curl http://13.59.147.66/index.html
+<h1> Welcome all first time to DevOpsSchol.com</h1>
+
+
+###################################################################################################################################
+
+Program 6 – Write a Ansible commands to copy a file called “second.html” in /var/www/html/second.html with some dummy html contents.
+
+Solution :
+**********
+ansible all -i acs-server, -m copy -a'content="<h1> Welcome all second time to DevOpsSchol.com</h1>" dest="/var/www/html/second.html"' -u ec2-user --key-file=acs-key.pem -b
+
+
+[root@ip-172-31-43-45 ~]# curl http://13.59.147.66/second.html
+<h1> Welcome all second time to DevOpsSchol.com</h1>
+
+################################################################################################################################
+
+Program 7 – Write a Ansible commands to install a package called “git”, “wget”.
+
+Solution :
+**********
+ansible all -i acs-server, -m yum -a"name=git state=present" -u ec2-user --key-file=acs-key.pem -b
+
+[root@ip-172-31-43-45 ~]# which git
+/usr/bin/git
+
+################################################################################################################################
+
+Program 8 – Write a Ansible Adhoc commands to clone git repo. https://github.com/scmgalaxy/ansible-role-template.
+
+ansible all -i acs-server, -m git -a'executable="/usr/bin/git" repo="https://github.com/scmgalaxy/ansible-role-template" dest="/src/ansible-role-template" separate_git_dir="/src/ansible-role-template.git"' -u ec2-user --key-file=acs-key.pem -b
+
+
+acs-server | CHANGED => {
+    "after": "d3eefe03c1bb6c9b0e1574347523174a26d015ff",
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/libexec/platform-python"
+    },
+    "before": null,
+    "changed": true
+}
+
+
+[ec2-user@ip-172-31-43-45 ansible-work]$ cd /src/ansible-role-template
+[ec2-user@ip-172-31-43-45 ansible-role-template]$ ls
+bennojoy.mysql  inventory  node.pem  rajesh.role1  README.md  site.retry  site.yaml
+[ec2-user@ip-172-31-43-45 ansible-role-template]$ ls -lrt /src/ansible-role-template
+ansible-role-template/     ansible-role-template.git/
+[ec2-user@ip-172-31-43-45 ansible-role-template]$ ls -lrt /src/ansible-role-template
+ansible-role-template/     ansible-role-template.git/
+[ec2-user@ip-172-31-43-45 ansible-role-template]$ ls -lrt /src/ansible-role-template.git/
+total 32
+-rw-r--r--.  1 root root   73 Oct 30 13:43 description
+drwxr-xr-x.  2 root root    6 Oct 30 13:43 branches
+drwxr-xr-x.  2 root root   21 Oct 30 13:43 info
+drwxr-xr-x.  2 root root 4096 Oct 30 13:43 hooks
+drwxr-xr-x. 57 root root 4096 Oct 30 13:43 objects
+drwxr-xr-x.  5 root root   46 Oct 30 13:43 refs
+-rw-r--r--.  1 root root  114 Oct 30 13:43 packed-refs
+drwxr-xr-x.  3 root root   30 Oct 30 13:43 logs
+-rw-r--r--.  1 root root  275 Oct 30 13:43 config
+-rw-r--r--.  1 root root   23 Oct 30 13:43 HEAD
+-rw-r--r--.  1 root root   41 Oct 30 13:43 ORIG_HEAD
+-rw-r--r--.  1 root root 3019 Oct 30 13:43 index
+
+#################################################################################################################################
+
+Program 9 – Write a Ansible commands to reboot a self machine.
 
