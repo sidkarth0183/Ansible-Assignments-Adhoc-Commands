@@ -183,5 +183,46 @@ drwxr-xr-x.  3 root root   30 Oct 30 13:43 logs
 
 #################################################################################################################################
 
+[root@ip-172-31-43-45 ~]# uptime
+ 14:54:14 up 11:02,  3 users,  load average: 0.00, 0.00, 0.00
+ 
 Program 9 – Write a Ansible commands to reboot a self machine.
+
+
+Solution :
+**********
+[root@ip-172-31-43-45 ~]# ansible all -i acs-server, -m reboot -a'msg="https://github.com/scmgalaxy/ansible-role-template" reboot_timeout=60' -u ec2-user --key-file=acs-key.pem -b
+
+───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Session stopped
+    - Press <return> to exit tab
+    - Press R to restart session
+    - Press S to save terminal output to file
+
+Server unexpectedly closed network connection
+
+after the server reboots check the uptime :
+[ec2-user@ip-172-31-43-45 ~]$ uptime
+ 14:59:20 up 1 min,  1 user,  load average: 0.14, 0.09, 0.03
+ 
+ ##################################################################################################################################
+ 
+ Program 10 – Write a Ansible commands to touch a file called “devopsschool.txt” in /opt/ and delete after using ansible adhoc command.
+ 
+ Solution :
+ -----------
+ 
+ [root@ip-172-31-43-45 ~]# ansible all -i acs-server, -m file -a"path=/opt/devopsschool.txt state=touch" -u ec2-user --key-file=acs-key.pem -b
+
+[root@ip-172-31-43-45 ~]# ls -lrt /opt/devopsschool.txt
+-rw-r--r--. 1 root root 0 Oct 30 15:15 /opt/devopsschool.txt
+
+[root@ip-172-31-43-45 ~]# ansible all -i acs-server, -m file -a'path="/opt/devopsschool.txt" state=absent' -u ec2-user --key-file=acs-key.pem -b
+
+[root@ip-172-31-43-45 ~]# ls -lrt /opt/devopsschool.txt
+ls: cannot access '/opt/devopsschool.txt': No such file or directory
+
+######################################################################################################################################
+
 
