@@ -133,11 +133,11 @@ ansible all -i acs-server, -m copy -a'content="<h1> Welcome all second time to D
 
 ################################################################################################################################
 
-Program 7 – Write a Ansible commands to install a package called “git”, “wget”.
+Program 7 – Write a Ansible commands to install a package called “git”, “wget”,"bind-utils","nmap","ftp".
 
 Solution :
 **********
-ansible all -i acs-server, -m yum -a"name=git state=present" -u ec2-user --key-file=acs-key.pem -b
+ansible all -i acs-server, -m yum -a"name=git,wget,bind-utils,namp,ftp state=present" -u ec2-user --key-file=acs-key.pem -b
 
 [root@ip-172-31-43-45 ~]# which git
 /usr/bin/git
